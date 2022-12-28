@@ -54,7 +54,6 @@ const Home = ({ fetchedUsers }: { fetchedUsers: Users[] }) => {
 					<h2 className='pt-[140px] text-center text-[40px] leading-10 text-black'>Working with GET request</h2>
 					<div className='mt-[50px] grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 md:gap-7 lg:grid-cols-3' ref={parent}>
 						{store.users.map((item: Users) => {
-							//  {Object.keys(store.users).map((item: Users) => { 
 							return (
 								<div
 									key={item.id}

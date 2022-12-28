@@ -24,4 +24,3 @@ type UserList = {
     links:Links;
     users: Users[];
 }
-// JSON.parse(JSON.stringify(member))

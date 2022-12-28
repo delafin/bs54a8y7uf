@@ -6,16 +6,6 @@ const initialState: AppState = {
 	condition: 'idle',
 	counter: 2,
 	users: [
-	// 	{
-	// 	id: 0,
-	// 	name: '',
-	// 	email: '',
-	// 	phone: '',
-	// 	position: '',
-	// 	position_id: 0,
-	// 	registration_timestamp: 0,
-	// 	photo: '',
-	// }
 	],
 };
 type Users = {
@@ -34,8 +24,6 @@ type AppState = {
 	users: Users[];
 };
 type Action = { type: 'LOADING' } | { type: 'LOADED'; payload: Users[]} | { type: 'LOADED_EXTRA'; payload: Users[]} | { type: 'ERROR' } | { type: 'SENDING' } | { type: 'INC' };
-// type AppState = typeof initialState;
-// type AppState = Omit<typeof initialState, 'users'> & {users:Users[]};
 type Prop = {
 	children: React.ReactNode;
 };
