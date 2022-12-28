@@ -7,6 +7,7 @@ import { useEffect, useContext,useState,useRef } from 'react';
 import { dataContext } from '../store';
 import autoAnimate from '@formkit/auto-animate'
 import ContactForm from '../components/form';
+import Preloader from '../components/preloader';
 
 const Home = ({ fetchedUsers }: { fetchedUsers: Users[] }) => {
 	const { store, dispatchStore } = useContext(dataContext);
@@ -28,10 +29,14 @@ const Home = ({ fetchedUsers }: { fetchedUsers: Users[] }) => {
 				dispatchStore({type:'LOADED',payload:result.users})
 			}).catch((err) => {
 				console.log(err);
+				setTimeout(() => {
+					dispatchStore({type:'IDLE'})
+				}, 3000);
 			})
 			dispatchStore({ type: 'INC'});
 		}
 	};
+
 	return (
 		<>
 			<section className='w-full bg-hero bg-cover bg-center bg-no-repeat object-cover object-center pt-10 pb-[71px] sm:pt-[90px] sm:pb-[88px]  md:pt-[164px] md:pb-[164px] '>
@@ -53,38 +58,46 @@ const Home = ({ fetchedUsers }: { fetchedUsers: Users[] }) => {
 				<div className='container'>
 					<h2 className='pt-[140px] text-center text-[40px] leading-10 text-black'>Working with GET request</h2>
 					<div className='mt-[50px] grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 md:gap-7 lg:grid-cols-3' ref={parent}>
-						{store.users.map((item: Users) => {
-							return (
-								<div
-									key={item.id}
-									className='flex flex-col items-center justify-center rounded-[10px] bg-white p-5 text-center  '
-								>
-									<Image src={item.photo} alt={item.name} width={70} height={70} className='rounded-full' />
-									<p className='pt-5 '>{item.name.length > 20 ? `${item.name.slice(0, 20)}...` : item.name}</p>
-									<p className='pt-5  '>{item.name.length > 20 ? `${item.name.slice(0, 20)}...` : item.name}</p>
-									<a href={`mailto:${item.email}`} className='group relative '>
-										{item.email.length > 20 ? `${item.email.slice(0, 20)}...` : item.email}
-										<div className='absolute -bottom-[40px] left-0 hidden  rounded bg-black  py-[3px] px-4 text-white group-hover:block'>
-											{item.email}
-										</div>
-									</a>
-									<a href={`tel:${item.phone}`} className='group relative'>
-										{item.phone}
-										<div className='absolute -bottom-[40px] left-0 hidden rounded bg-black py-[3px]  px-4 text-white group-hover:block'>
+						{ 				
+						!fetchedUsers ? <div className='col-start-2 col-end-3 mx-auto'><Preloader w='200px' h='200px'/></div> :
+						//  'asd'
+						<> 
+							{store.users.map((item: Users) => {
+								return (
+									<div
+										key={item.id}
+										className='flex flex-col items-center justify-center rounded-[10px] bg-white p-5 text-center  '>
+										<Image src={item.photo} alt={item.name} width={70} height={70} className='rounded-full' />
+										<p className='pt-5 '>{item.name.length > 20 ? `${item.name.slice(0, 20)}...` : item.name}</p>
+										<p className='pt-5  '>{item.name.length > 20 ? `${item.name.slice(0, 20)}...` : item.name}</p>
+										<a href={`mailto:${item.email}`} className='group relative '>
+											{item.email.length > 20 ? `${item.email.slice(0, 20)}...` : item.email}
+											<div className='absolute -bottom-[40px] left-0 hidden  rounded bg-black  py-[3px] px-4 text-white group-hover:block'>
+												{item.email}
+											</div>
+										</a>
+										<a href={`tel:${item.phone}`} className='group relative'>
 											{item.phone}
-										</div>
-									</a>
-								</div>
-							);
-						})}
+											<div className='absolute -bottom-[40px] left-0 hidden rounded bg-black py-[3px]  px-4 text-white group-hover:block'>
+												{item.phone}
+											</div>
+										</a>
+									</div>
+								);
+							})
+							}
+
+						</>
+						}
 					</div>
-					<button
-						onClick={onMore}
-							className={store.condition === 'idle' && store.counter < 8 ? `mx-auto mt-[50px] block cursor-pointer rounded-[80px] bg-yellow  px-[22px] pt-1 pb-1   transition-colors hover:bg-lightyellow` : `mx-auto mt-[50px] text-white block cursor-pointer rounded-[80px] bg-darkgrey  px-[22px] pt-1 pb-1   transition-colors hover:bg-darkgrey` }
-						disabled={store.condition === 'idle' && store.counter < 8 ? false : true}
-					>
-						Show more
-					</button>
+					{ !fetchedUsers ? null : 
+						<button
+								onClick={onMore}
+									className={store.condition === 'idle' && store.counter < 8 ? `mx-auto mt-[50px] block cursor-pointer rounded-[80px] bg-yellow  px-[22px] pt-1 pb-1   transition-colors hover:bg-lightyellow` : `mx-auto mt-[50px] text-white block cursor-pointer rounded-[80px] bg-darkgrey  px-[22px] pt-1 pb-1   transition-colors hover:bg-darkgrey` }
+								disabled={store.condition === 'idle' && store.counter < 8 ? false : true}>
+								Show more
+						</button>
+					}
 				</div>
 			</section>
 			<section>

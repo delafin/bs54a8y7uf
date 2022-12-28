@@ -5,7 +5,18 @@ const initialState: AppState = {
 // const initialState = {
 	condition: 'idle',
 	counter: 2,
+	message: '',
 	users: [
+	// 	{
+	// 	id: 0,
+	// 	name: '',
+	// 	email: '',
+	// 	phone: '',
+	// 	position: '',
+	// 	position_id: 0,
+	// 	registration_timestamp: 0,
+	// 	photo: '',
+	// }
 	],
 };
 type Users = {
@@ -21,9 +32,12 @@ type Users = {
 type AppState = {
 	condition: 'idle' | 'loading' | 'error' | 'sending' ;
 	counter: number;
+	message: string;
 	users: Users[];
 };
-type Action = { type: 'LOADING' } | { type: 'LOADED'; payload: Users[]} | { type: 'LOADED_EXTRA'; payload: Users[]} | { type: 'ERROR' } | { type: 'SENDING' } | { type: 'INC' };
+type Action = { type: 'LOADING' } | { type: 'LOADED'; payload: Users[]} | { type: 'ERROR_MESSAGE'; payload: string} | { type: 'LOADED_EXTRA'; payload: Users[]} | { type: 'ERROR' } | { type: 'IDLE' } | { type: 'SENDING' } | { type: 'INC' };
+// type AppState = typeof initialState;
+// type AppState = Omit<typeof initialState, 'users'> & {users:Users[]};
 type Prop = {
 	children: React.ReactNode;
 };
@@ -46,8 +60,12 @@ function reducer(state: AppState, action: Action):AppState {
 			return { ...state, condition: 'idle', users: action.payload };
 		case 'LOADED_EXTRA':
 			return { ...state, condition: 'idle', users: [...state.users, ...action.payload] };
-		case 'ERROR':
-			return { ...state, condition: 'error' };	
+			case 'ERROR':
+				return { ...state, condition: 'error' };	
+			case 'ERROR_MESSAGE':
+				return { ...state, condition: 'idle', message: action.payload };
+		case 'IDLE':
+			return { ...state, condition: 'idle' };	
 		case 'SENDING':
 			return { ...state, condition: 'sending' };
 		case 'INC':

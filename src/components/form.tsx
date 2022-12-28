@@ -1,6 +1,6 @@
 
 import * as Yup from 'yup';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, Field, ErrorMessage, useFormikContext } from 'formik';
 import { useContext, useEffect, useRef, useState } from 'react';
 import autoAnimate from '@formkit/auto-animate'
 import { TypeOf } from 'zod';
@@ -8,15 +8,20 @@ import { useHttp } from '../hooks/useHttp';
 import Image from 'next/image';
 import { dataContext } from '../store';
 import Preloader from './preloader';
-
+    
 const ContactForm = () => {
     
 	const parent = useRef(null)
 	const parentThank = useRef(null)
+    // const formikHandler = useFormikContext(null);
+    // ,{resetForm, setSubmitting}
+    const [isError, setIsError] = useState(false);
     useEffect(() => {
-        parent.current && autoAnimate(parent.current)
-	  parentThank.current && autoAnimate(parentThank.current)
+        
+    parent.current && autoAnimate(parent.current)
+	parentThank.current && autoAnimate(parentThank.current)
 	}, [parent])
+
     const [fileName, setFileName] = useState('Upload your photo');
     // const [token, setToken] = useState('');
     // const [file, setFile] = useState({});
@@ -43,29 +48,50 @@ const ContactForm = () => {
         return await request(
             'https://frontend-test-assignment-api.abz.agency/api/v1/token')
             .then((data) => {return data})
-            .catch((e: Error) => console.log('Token Error:' + e));
+            .catch((e: Error) => console.log('Token:' + e));
     }
-    const newUser = async (data:FormData, token:string, ) => {
+    const newUser = async (data:FormData, token:string, setSubmitting: (condition:boolean)=>void, resetForm:any) => {
         // const header = {'Content-Type': 'multipart/form-data',  'Token': token};
         const header = {'Token': token};
         return await request(
             'https://frontend-test-assignment-api.abz.agency/api/v1/users', 'POST', data, header)
-            .then((data) =>{
+            .then((data) => {
+                setIsError(()=>false)
                 setThank((variable) => !variable);
                 setTimeout(() => {
                     setThank((variable) => !variable);
                 }, 10000);
                 request(`https://frontend-test-assignment-api.abz.agency/api/v1/users?page=1&count=${5 * store.counter}`, 'GET').then((result) => {
-                    dispatchStore({type:'LOADED',payload:result.users})
+                    resetForm();
+                    // handleReset()
+                    dispatchStore({type:'LOADED',payload:result.users});
+                    setSubmitting(false)
                 }).catch((err) => {
-                    console.log(err);
+                    setSubmitting(false)
+                    // handleReset()
+                    resetForm();
+                    setTimeout(() => {
+                        dispatchStore({type:'IDLE'})
+                    }, 3000);
                 })
-        }
+            }
             )
-            .catch((e: Error) => {console.log('Error:' + e);});
+            .catch((e: Error) => {
+                setIsError(() => true)
+               
+                console.log('New User: ' + e);
+                setSubmitting(false)
+                setTimeout(() => {
+                    dispatchStore({type:'IDLE'})
+                    console.log(isError);
+                }, 3000);
+                setTimeout(() => {
+                    setIsError(() => false)
+                }, 15000);
+            });
     }
     
-    const submitForm = (values: any ,setSubmitting: (condition:boolean)=>void):void => {
+    const submitForm = (values: any, setSubmitting: (condition:boolean)=>void,resetForm:any):void => {
         
         switch (values.position) {
             case 'frontend':
@@ -95,7 +121,7 @@ const ContactForm = () => {
         //     console.log(property[0], property[1]);
         //   }
 
-        getToken().then(data => newUser(formData,data.token))
+        getToken().then(data => newUser(formData,data.token,setSubmitting,resetForm));
         
         // await fetch(
         //     "https://frontend-test-assignment-api.abz.agency/api/v1/users",
@@ -114,28 +140,31 @@ const ContactForm = () => {
         //     .catch((error) => {
         //       console.error("Error:", error);
         //     });
-            setSubmitting(false)
+            
     }
 
     const classField = (touch: boolean | undefined , error: string | undefined) => {
-        const errorClass = touch && error ? `outline-red  border-red` : null;
-        return `peer w-full rounded-[4px] border-[1px] border-[#D0CFCF] py-4 px-4 outline-[#D0CFCF] ${errorClass}`
+        const errorClass = touch && error ? `outline-red  border-red` : `border-[#D0CFCF] outline-[#D0CFCF]`;
+        return `peer w-full rounded-[4px] border-[1px]  py-4 px-4 outline-[#D0CFCF] ${errorClass}`
     }
     const classLabel = (touch: boolean | undefined , error: string | undefined) => {
-        const errorClass = touch && error ? `text-red` : null;
-        return `absolute left-3 top-0 -translate-y-1/2 bg-grey px-2 text-xs text-[#7E7E7E] transition-all duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:bg-transparent peer-focus:top-0 peer-focus:bg-grey ${errorClass}`
+        const errorClass = touch && error ? `text-red` : `text-[#7E7E7E]`;
+        return `absolute left-3 top-0 -translate-y-1/2 bg-grey px-2 text-xs transition-all duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:bg-transparent peer-focus:top-0 peer-focus:bg-grey ${errorClass}`
     }
     const classFile = (touch: boolean | undefined , error: string | undefined) => {
-        const errorClass = touch && error ? `text-red border-red` : null;
-        return `w-full min-w-full cursor-pointer rounded-[4px] border-[1px] border-[#D0CFCF] px-4 py-[14px] pl-[100px] text-[#7E7E7E] ${errorClass}`
+        const errorClass = touch && error ? `text-[#7E7E7E] border-red` : `border-[#D0CFCF] text-[#7E7E7E]`;
+        return `w-full min-w-full cursor-pointer rounded-[4px] border-[1px]  px-4 py-[14px] pl-[100px]  ${errorClass}`
     }
     const classFileLabel = (touch: boolean | undefined , error: string | undefined) => {
-        const errorClass = touch && error ? `text-red border-red` : null;
+        const errorClass = touch && error ? `text-black border-red` : `text-black border-black`;
         return `absolute left-0 top-0 cursor-pointer rounded-l-[4px] border-[1px] px-4 py-[14px] ${errorClass}`
     }
     const classButton = (condition: boolean | undefined) => {
         const errorClass = condition ? `bg-darkgrey hover:bg-darkgrey` : `hover:bg-lightyellow bg-yellow` ;
-        return `mx-auto mt-[50px] block cursor-pointer rounded-[80px]  text-white  px-[22px] pt-1 pb-1 transition-colors  mb-8 ${errorClass}`
+        return `flex gap-2 items-center justify-center mx-auto mt-[50px] block cursor-pointer rounded-[80px]  text-white  px-[22px] pt-1 pb-1 transition-colors  mb-8 ${errorClass}`
+    }
+    const classError = (condition = true) => {
+        return `${condition ? 'display-block mt-4 mx-auto text-red' : 'display-block mt-4 mx-auto text-red' }`
     }
 
     // function checkIfFilesAreTooBig(files?: [File]): boolean {
@@ -213,10 +242,11 @@ const ContactForm = () => {
                         // .nullable()
                         .test(
                             "fileSize",
-                            "File size too large, max file size is 1 Mb",
+                            "File size too large, max file size is 5 Mb",
                             (file) => {
                                 if (file) {
-                                    return file.size <= 1 * 1000000 + 100000;
+                                    // return file.size <= 1 * 1000000 + 100000;
+                                    return file.size <= 5 * 1000000;
                                 } else {
                                     return true;
                                 }
@@ -244,12 +274,11 @@ const ContactForm = () => {
                         // .matches(/^((\+[1-9]{1,4}[ \-]*)|(\([0-9]{2,3}\)[ \-]*)|([0-9]{2,4})[ \-]*)*?[0-9]{3,4}?[ \-]*[0-9]{3,4}?$/, 'Please, use a valid phone number.'),
                         .matches(/^[\+]{0,1}380([0-9]{9})$/, 'Please, use a valid phone number.'), // User phone number. Number should start with code of Ukraine,like: +380955388485
                 })}
-                onSubmit={(values, {setSubmitting}) => {
-                    submitForm(values, setSubmitting);
-                }}
-            >
+                // onSubmit={(values, {setSubmitting}) => {
+                onSubmit={(values, {setSubmitting,resetForm}) => {
+                    submitForm(values,setSubmitting,resetForm);
+                }}>
                 { formik => (
-                    
                     <Form className={`mx-auto mt-[50px] flex max-w-sm flex-col items-center justify-center ${thank ? 'hidden': 'visible'}`} ref={parent}>
                         <div className='w-full'>
                             <div className='group relative'>
@@ -389,26 +418,23 @@ const ContactForm = () => {
                             />
                         </div>
                         <ErrorMessage className='mt-1 pl-4 text-red self-start' name='photo' component='div'/>
+                        {isError ? <div className={classError()}>{store.message}</div> : null }
                         <button type="submit" disabled={ formik.isSubmitting ? true : false }
-                      
-                        className={classButton(formik.isSubmitting)}>
+                            className={classButton(formik.isSubmitting)}>
                             Sign up
+                            <Preloader w='10px' h='10px' visible={formik.isSubmitting ? true : false}/>
                         </button>
                     </Form>
-                ) }
-
-            </Formik> 
-            <section className={`mx-auto mt-[50px] flex max-w-sm flex-col items-center justify-center ${thank ? 'visible': 'hidden'}`} ref={parentThank}>
+                )}
+                </Formik>
+                <section className={`mx-auto mt-[50px] flex max-w-sm flex-col items-center justify-center ${thank ? 'visible': 'hidden'}`} ref={parentThank}>
                 <div className='container'>
                     <div className='text-center font-normal text-[40px] leading-10'>User successfully registered</div>
-                    <Image src='/img/success-image.svg' alt='success' width={328} height={290} className='mt-[50px] w-full h-full object-cover object-center'/>
-                </div>
+                        <Image src='/img/success-image.svg' alt='success' width={328} height={290} className='mt-[50px] w-full h-full object-cover object-center'/>
+                    </div>
             </section>  
-                
         </>
-        
-
-    );
+    )
 }
 
 export default ContactForm;

@@ -15,6 +15,7 @@ function Header({ children }: Children) {
 							<Image
 								src={logo}
 								alt='logo'
+								// fill
 								width={104}
 								height={26}
 							/>

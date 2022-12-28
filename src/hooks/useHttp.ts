@@ -10,7 +10,11 @@ export const useHttp = () => {
     try {
         const response = await fetch(url, {method, body, headers});
         if (!response.ok) {
-            dispatchStore({type: 'ERROR'})
+            // dispatchStore({type: 'ERROR'})
+            // throw new Error(`Could not fetch ${url}, status: ${response.status}`);
+            const data = await response.json();
+            // return data.message;
+            dispatchStore({type: 'ERROR_MESSAGE', payload:data.message})
             throw new Error(`Could not fetch ${url}, status: ${response.status}`);
         }
         const data = await response.json();
@@ -19,6 +23,13 @@ export const useHttp = () => {
         dispatchStore({type: 'ERROR'})
         throw e
     }
+    // await fetch(url, {method, body, headers})
+    // .then(async (result) => {
+    //     return await result.json();
+    // }).catch((err) => {
+    //     dispatchStore({type: 'ERROR'})
+    //     // throw e
+    // });
 
     }, []);
     
