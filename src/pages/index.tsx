@@ -31,8 +31,6 @@ const Home = ({ fetchedUsers }: { fetchedUsers: Users[] }) => {
 			})
 			dispatchStore({ type: 'INC'});
 		}
-		console.log(store.users);
-
 	};
 	return (
 		<>
@@ -57,7 +55,6 @@ const Home = ({ fetchedUsers }: { fetchedUsers: Users[] }) => {
 					<div className='mt-[50px] grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-4 md:grid-cols-3 md:gap-7 lg:grid-cols-3' ref={parent}>
 						{store.users.map((item: Users) => {
 							//  {Object.keys(store.users).map((item: Users) => { 
-							
 							return (
 								<div
 									key={item.id}
