@@ -1,8 +1,10 @@
 import { type AppType } from "next/app";
 import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
+import Head from "../layout/head";
 
-import { trpc } from "../utils/trpc";
+import Header from "../layout/header";
+import { ContextProvider } from '../store'
 
 import "../styles/globals.css";
 
@@ -12,9 +14,15 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
   return (
     <SessionProvider session={session}>
-      <Component {...pageProps} />
-    </SessionProvider>
+        <ContextProvider>
+        <Head>
+          <Header>
+            <Component {...pageProps} />
+          </Header>
+        </Head>
+    </ContextProvider>
+      </SessionProvider>
   );
 };
 
-export default trpc.withTRPC(MyApp);
+export default MyApp;
