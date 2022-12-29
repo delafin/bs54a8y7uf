@@ -140,7 +140,6 @@ const ContactForm = () => {
         //     .catch((error) => {
         //       console.error("Error:", error);
         //     });
-            
     }
 
     const classField = (touch: boolean | undefined , error: string | undefined) => {
@@ -210,7 +209,6 @@ const ContactForm = () => {
                     phone: '',
                     photo: undefined,
                     position: '',
-                    
                 }}
                 validationSchema={Yup.object({
                     position:  
@@ -291,8 +289,8 @@ const ContactForm = () => {
                                 />
                                 
                                 <label htmlFor='name'
-                                className={classLabel(formik.touched.name,formik.errors.name)}>
-                                    Your name
+                                    className={classLabel(formik.touched.name,formik.errors.name)}>
+                                        Your name
                                 </label>
                             </div>
                             <ErrorMessage className='mt-1 pl-4 text-red' name='name' component='div'/>
