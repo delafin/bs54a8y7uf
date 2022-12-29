@@ -8,12 +8,10 @@ export const useFetch = () => {
 		try {
 			const response = await fetch(url, { method, body, headers });
 			if (!response.ok) {
-				const data = await response.json();
-				console.log(data);
-				return data;
-				// throw new Error(`Could not fetch ${url}, status: ${response.status}`);
+				throw new Error(`Could not fetch ${url}, status: ${response.status}`);
 			}
 			const data = await response.json();
+			console.log(data);
 			return data;
 		} catch (e) {
 			throw e;

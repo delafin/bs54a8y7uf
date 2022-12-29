@@ -6,5 +6,5 @@ import { ReactNode } from 'react';
 // }
 
 declare const variable: string;
-
+// eslint-disable-next-line
 export default function Layout({ children, home }: { children: ReactNode; home?: boolean }) {}
